@@ -84,6 +84,7 @@ func (w worker) simulateTraces(telemetryAttributes []attribute.KeyValue) {
 			w.logger.Fatal("limiter waited failed, retry", zap.Error(err))
 		}
 
+		opt := trace.WithTimestamp(time.Now().Add(w.spanDuration))
 		child.SetStatus(w.statusCode, "")
 		child.End(endTimestampOption)
 		sp.SetStatus(w.statusCode, "")

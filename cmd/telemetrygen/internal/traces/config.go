@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/spf13/pflag"
+	"time"
 
 	"github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen/internal/common"
 )
