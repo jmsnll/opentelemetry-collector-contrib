@@ -57,6 +57,7 @@ func (w worker) simulateTraces(telemetryAttributes []attribute.KeyValue) {
 			trace.WithTimestamp(spanStart),
 		)
 		sp.SetAttributes(telemetryAttributes...)
+
 		for j := 0; j < w.loadSize; j++ {
 			sp.SetAttributes(attribute.String(fmt.Sprintf("load-%v", j), string(make([]byte, charactersPerMB))))
 		}
@@ -84,7 +85,6 @@ func (w worker) simulateTraces(telemetryAttributes []attribute.KeyValue) {
 			w.logger.Fatal("limiter waited failed, retry", zap.Error(err))
 		}
 
-		opt := trace.WithTimestamp(time.Now().Add(w.spanDuration))
 		child.SetStatus(w.statusCode, "")
 		child.End(endTimestampOption)
 		sp.SetStatus(w.statusCode, "")
