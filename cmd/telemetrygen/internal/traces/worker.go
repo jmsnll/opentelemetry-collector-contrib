@@ -39,10 +39,11 @@ const (
 	charactersPerMB = 1024 * 1024 // One character takes up one byte of space, so this number comes from the number of bytes in a megabyte
 )
 
-func (w worker) simulateTraces() {
+func (w worker) simulateTraces(telemetryAttributes []attribute.KeyValue) {
 	tracer := otel.Tracer("telemetrygen")
 	limiter := rate.NewLimiter(w.limitPerSecond, 1)
 	var i int
+
 	for w.running.Load() {
 		spanStart := time.Now()
 		spanEnd := spanStart.Add(w.spanDuration)
@@ -55,7 +56,7 @@ func (w worker) simulateTraces() {
 			trace.WithSpanKind(trace.SpanKindClient),
 			trace.WithTimestamp(spanStart),
 		)
-
+		sp.SetAttributes(telemetryAttributes...)
 		for j := 0; j < w.loadSize; j++ {
 			sp.SetAttributes(attribute.String(fmt.Sprintf("load-%v", j), string(make([]byte, charactersPerMB))))
 		}
@@ -77,6 +78,7 @@ func (w worker) simulateTraces() {
 			trace.WithSpanKind(trace.SpanKindServer),
 			trace.WithTimestamp(spanStart),
 		)
+		child.SetAttributes(telemetryAttributes...)
 
 		if err := limiter.Wait(context.Background()); err != nil {
 			w.logger.Fatal("limiter waited failed, retry", zap.Error(err))
